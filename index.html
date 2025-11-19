@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noxy's Tasks</title>
+    <title>Task Calendar Manager</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -27,6 +27,9 @@
             --calendar-bg: #ffffff;
             --task-list-bg: #ffffff;
             --important-bg: #ffffff;
+            --calendar-text: #1f2937;
+            --task-text: #1f2937;
+            --important-text: #1f2937;
         }
 
         * {
@@ -39,7 +42,8 @@
             font-family: 'Inter', sans-serif;
             color: var(--text-primary);
             line-height: 1.6;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
             transition: background 0.3s ease;
             background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
         }
@@ -100,32 +104,99 @@
             background: #fafafa;
         }
 
-        .container {
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .sidebar h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .upcoming-events {
+            margin-bottom: 24px;
+        }
+
+        .event-badge {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .event-badge:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .event-badge .event-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .event-badge .event-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .event-badge .event-type {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .main-content {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            gap: 24px;
+            height: 100vh;
+            overflow: hidden;
         }
 
         .header {
             background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            box-shadow: var(--shadow-md);
+            padding: 16px 24px;
+            box-shadow: var(--shadow-sm);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
+            flex-shrink: 0;
+            z-index: 10;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 12px;
         }
 
         .header h1 {
             font-weight: 700;
-            font-size: 28px;
+            font-size: 24px;
             background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -134,7 +205,7 @@
 
         .customization-container {
             display: flex;
-            gap: 16px;
+            gap: 12px;
             align-items: center;
             flex-wrap: wrap;
         }
@@ -142,22 +213,22 @@
         .color-picker-group {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             background: var(--secondary-color);
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: var(--radius-md);
         }
 
         .color-picker-group label {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 500;
             color: var(--text-secondary);
             white-space: nowrap;
         }
 
         .color-picker {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border: 2px solid var(--border-color);
             border-radius: var(--radius-sm);
             cursor: pointer;
@@ -171,26 +242,26 @@
         .bg-picker-container {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             background: var(--secondary-color);
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: var(--radius-md);
         }
 
         .bg-picker-container label {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 500;
             color: var(--text-secondary);
         }
 
         .bg-selector {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .bg-option {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             border-radius: var(--radius-sm);
             cursor: pointer;
             border: 2px solid transparent;
@@ -266,20 +337,23 @@
             background: #fafafa;
         }
 
-        .main-content {
+        .content-area {
+            flex: 1;
             display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+            overflow-y: auto;
         }
 
         .calendar-container {
             flex: 1;
-            min-width: 380px;
             background: var(--calendar-bg);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
-            padding: 24px;
+            padding: 16px;
             transition: all 0.3s ease;
+            min-width: 300px;
+            max-width: 400px;
         }
 
         .calendar-container:hover {
@@ -290,20 +364,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 8px;
         }
 
         .calendar-header h2 {
             font-weight: 600;
-            font-size: 20px;
-            color: var(--text-primary);
+            font-size: 16px;
+            color: var(--calendar-text);
         }
 
         .calendar-nav {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
         }
 
@@ -312,10 +386,10 @@
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
             cursor: pointer;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: var(--radius-sm);
             transition: all 0.2s;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 500;
         }
 
@@ -329,17 +403,17 @@
 
         .month-year-selector {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .month-selector, .year-selector {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 8px 12px;
+            color: var(--calendar-text);
+            padding: 6px 10px;
             border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             transition: all 0.2s;
         }
 
@@ -352,15 +426,15 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
+            gap: 3px;
         }
 
         .day-name {
             text-align: center;
             font-weight: 600;
-            padding: 12px 0;
-            color: var(--text-secondary);
-            font-size: 13px;
+            padding: 8px 0;
+            color: var(--calendar-text);
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -376,7 +450,8 @@
             transition: all 0.2s;
             position: relative;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 12px;
+            color: var(--calendar-text);
         }
 
         .calendar-day:hover {
@@ -404,9 +479,9 @@
         .calendar-day.has-tasks::after {
             content: '';
             position: absolute;
-            bottom: 4px;
-            width: 6px;
-            height: 6px;
+            bottom: 3px;
+            width: 5px;
+            height: 5px;
             background: var(--primary-dark);
             border-radius: 50%;
         }
@@ -416,16 +491,24 @@
             background: white;
         }
 
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+            min-width: 300px;
+        }
+
         .task-list-container {
             flex: 1;
-            min-width: 380px;
             background: var(--task-list-bg);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
-            padding: 24px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
+            overflow: hidden;
         }
 
         .task-list-container:hover {
@@ -436,13 +519,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .task-list-header h2 {
             font-weight: 600;
-            font-size: 20px;
-            color: var(--text-primary);
+            font-size: 16px;
+            color: var(--task-text);
         }
 
         .add-task-btn {
@@ -450,14 +533,14 @@
             color: white;
             border: none;
             border-radius: var(--radius-sm);
-            padding: 10px 20px;
+            padding: 6px 12px;
             cursor: pointer;
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.2s;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .add-task-btn:hover {
@@ -467,10 +550,10 @@
 
         .task-date {
             font-weight: 500;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
             color: var(--text-secondary);
-            font-size: 14px;
-            padding: 8px 12px;
+            font-size: 12px;
+            padding: 6px 10px;
             background: var(--secondary-color);
             border-radius: var(--radius-sm);
         }
@@ -478,14 +561,13 @@
         .task-list {
             flex: 1;
             overflow-y: auto;
-            max-height: 400px;
         }
 
         .task-item {
             display: flex;
             align-items: center;
-            padding: 16px;
-            margin-bottom: 8px;
+            padding: 10px;
+            margin-bottom: 6px;
             background: var(--bg-secondary);
             border-radius: var(--radius-sm);
             transition: all 0.2s;
@@ -499,16 +581,17 @@
         }
 
         .task-checkbox {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
             accent-color: var(--primary-color);
-            margin-right: 12px;
+            margin-right: 10px;
         }
 
         .task-text {
             flex: 1;
-            font-size: 14px;
+            font-size: 13px;
+            color: var(--task-text);
         }
 
         .task-item.completed .task-text {
@@ -521,7 +604,7 @@
             border: none;
             color: #ef4444;
             cursor: pointer;
-            padding: 6px;
+            padding: 4px;
             opacity: 0.7;
             transition: all 0.2s;
             border-radius: var(--radius-sm);
@@ -536,8 +619,13 @@
             background: var(--important-bg);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
-            padding: 24px;
+            padding: 16px;
             transition: all 0.3s ease;
+            flex: 1;
+            max-height: 250px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .important-events-container:hover {
@@ -547,39 +635,38 @@
         .important-events-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
         .important-events-header h2 {
             font-weight: 600;
-            font-size: 20px;
-            color: var(--text-primary);
+            font-size: 16px;
+            color: var(--important-text);
         }
 
         .important-events-header i {
             color: var(--primary-color);
-            font-size: 20px;
+            font-size: 16px;
         }
 
         .important-events-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
+            flex: 1;
+            overflow-y: auto;
         }
 
         .event-item {
             background: linear-gradient(135deg, var(--secondary-color), var(--bg-primary));
             border-left: 4px solid var(--primary-color);
-            padding: 12px 16px;
+            padding: 10px 12px;
             border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             transition: all 0.2s;
             border: 1px solid var(--border-color);
-            flex: 1;
-            min-width: 200px;
+            margin-bottom: 6px;
+            position: relative;
         }
 
         .event-item:hover {
@@ -590,7 +677,7 @@
 
         .event-item i {
             color: var(--primary-color);
-            font-size: 18px;
+            font-size: 14px;
         }
 
         .event-checkbox {
@@ -599,7 +686,31 @@
 
         .event-text {
             flex: 1;
-            font-size: 14px;
+            font-size: 13px;
+            color: var(--important-text);
+        }
+
+        .event-delete {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 3px;
+            opacity: 0;
+            transition: all 0.2s;
+            border-radius: var(--radius-sm);
+        }
+
+        .event-item:hover .event-delete {
+            opacity: 0.7;
+        }
+
+        .event-delete:hover {
+            opacity: 1;
+            background: rgba(239, 68, 68, 0.1);
         }
 
         .modal {
@@ -619,9 +730,9 @@
         .modal-content {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
-            padding: 32px;
+            padding: 20px;
             width: 90%;
-            max-width: 500px;
+            max-width: 400px;
             box-shadow: var(--shadow-xl);
             animation: modalSlideIn 0.3s ease;
         }
@@ -641,24 +752,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
         .modal-header h3 {
             font-weight: 600;
-            font-size: 20px;
+            font-size: 16px;
             color: var(--text-primary);
         }
 
         .close-modal {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
             color: var(--text-secondary);
             transition: all 0.2s;
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -671,26 +782,26 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 500;
             color: var(--text-primary);
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .form-group input[type="text"] {
             width: 100%;
-            padding: 12px 16px;
+            padding: 10px 12px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             background: var(--bg-primary);
             color: var(--text-primary);
             font-family: inherit;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.2s;
         }
 
@@ -703,15 +814,15 @@
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 16px;
+            gap: 10px;
+            padding: 12px;
             background: var(--secondary-color);
             border-radius: var(--radius-sm);
         }
 
         .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             accent-color: var(--primary-color);
         }
 
@@ -723,17 +834,17 @@
         .form-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
-            margin-top: 24px;
+            gap: 10px;
+            margin-top: 16px;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: var(--radius-sm);
             cursor: pointer;
             font-weight: 500;
             transition: all 0.2s;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .btn-primary {
@@ -759,138 +870,221 @@
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 16px;
             color: var(--text-secondary);
         }
 
         .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
+            font-size: 28px;
+            margin-bottom: 10px;
             color: var(--border-color);
         }
 
         .empty-state p {
-            font-size: 14px;
+            font-size: 13px;
         }
 
-        @media (max-width: 768px) {
-            .main-content {
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
                 flex-direction: column;
             }
             
-            .calendar-container,
-            .task-list-container {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 16px;
+                display: flex;
+                overflow-x: auto;
+                flex-direction: column;
+            }
+            
+            .content-area {
+                flex-direction: column;
+                padding: 16px;
+            }
+            
+            .right-panel {
                 min-width: 100%;
             }
+            
+            .calendar-container {
+                min-width: 100%;
+                max-width: 100%;
+            }
+        }
 
+        @media (max-width: 768px) {
             .header {
                 flex-direction: column;
-                gap: 16px;
+                gap: 10px;
+                padding: 12px 16px;
             }
-
+            
             .customization-container {
+                flex-wrap: wrap;
                 justify-content: center;
+            }
+            
+            .menu-toggle {
+                display: block;
+                position: absolute;
+                left: 16px;
+                top: 16px;
+            }
+            
+            .header h1 {
+                margin-left: 36px;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 100;
+                transform: translateX(-100%);
+                padding-top: 60px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .content-area {
+                padding: 12px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Welcome Baby!!!</h1>
-            <div class="customization-container">
-                <div class="color-picker-group">
-                    <label for="theme-color">Theme:</label>
-                    <input type="color" id="theme-color" class="color-picker" value="#4f46e5">
-                </div>
-                <div class="color-picker-group">
-                    <label for="calendar-color">Calendar:</label>
-                    <input type="color" id="calendar-color" class="color-picker" value="#ffffff">
-                </div>
-                <div class="color-picker-group">
-                    <label for="task-list-color">Tasks:</label>
-                    <input type="color" id="task-list-color" class="color-picker" value="#ffffff">
-                </div>
-                <div class="color-picker-group">
-                    <label for="important-color">Important:</label>
-                    <input type="color" id="important-color" class="color-picker" value="#ffffff">
-                </div>
-                <div class="bg-picker-container">
-                    <label>Background:</label>
-                    <div class="bg-selector">
-                        <div class="bg-option bg-default active" data-bg="default" title="Default"></div>
-                        <div class="bg-option bg-gradient-1-thumb" data-bg="bg-gradient-1" title="Purple Dream"></div>
-                        <div class="bg-option bg-gradient-2-thumb" data-bg="bg-gradient-2" title="Pink Sunset"></div>
-                        <div class="bg-option bg-gradient-3-thumb" data-bg="bg-gradient-3" title="Ocean Blue"></div>
-                        <div class="bg-option bg-gradient-4-thumb" data-bg="bg-gradient-4" title="Fresh Green"></div>
-                        <div class="bg-option bg-gradient-5-thumb" data-bg="bg-gradient-5" title="Warm Sunrise"></div>
-                        <div class="bg-option bg-gradient-6-thumb" data-bg="bg-gradient-6" title="Deep Space"></div>
-                        <div class="bg-option bg-pattern-1-thumb" data-bg="bg-pattern-1" title="Diagonal Lines"></div>
-                        <div class="bg-option bg-pattern-2-thumb" data-bg="bg-pattern-2" title="Dots Pattern"></div>
-                        <div class="bg-option bg-solid-dark-thumb" data-bg="bg-solid-dark" title="Dark Mode"></div>
-                        <div class="bg-option bg-solid-light-thumb" data-bg="bg-solid-light" title="Light Mode"></div>
-                    </div>
+    <div class="app-container">
+        <div class="sidebar" id="sidebar">
+            <h3>Upcoming Events</h3>
+            <div class="upcoming-events" id="upcoming-events">
+                <div class="empty-state">
+                    <i class="fas fa-calendar-alt"></i>
+                    <p>No upcoming events</p>
                 </div>
             </div>
         </div>
         
         <div class="main-content">
-            <div class="calendar-container">
-                <div class="calendar-header">
-                    <h2 id="current-month">June 2023</h2>
-                    <div class="calendar-nav">
-                        <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
-                        <div class="month-year-selector">
-                            <select id="month-selector" class="month-selector">
-                                <option value="0">January</option>
-                                <option value="1">February</option>
-                                <option value="2">March</option>
-                                <option value="3">April</option>
-                                <option value="4">May</option>
-                                <option value="5">June</option>
-                                <option value="6">July</option>
-                                <option value="7">August</option>
-                                <option value="8">September</option>
-                                <option value="9">October</option>
-                                <option value="10">November</option>
-                                <option value="11">December</option>
-                            </select>
-                            <input type="number" id="year-selector" class="year-selector" min="2020" max="2030" style="width: 80px;">
-                        </div>
-                        <button id="today-btn">Today</button>
-                        <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+            <div class="header">
+                <button class="menu-toggle" id="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Task Calendar Manager</h1>
+                <div class="customization-container">
+                    <div class="color-picker-group">
+                        <label for="theme-color">Theme:</label>
+                        <input type="color" id="theme-color" class="color-picker" value="#4f46e5">
                     </div>
-                </div>
-                <div class="calendar-grid" id="calendar">
-                    <!-- Calendar will be generated here -->
+                    <div class="color-picker-group">
+                        <label for="calendar-bg-color">Calendar BG:</label>
+                        <input type="color" id="calendar-bg-color" class="color-picker" value="#ffffff">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="task-list-bg-color">Tasks BG:</label>
+                        <input type="color" id="task-list-bg-color" class="color-picker" value="#ffffff">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="important-bg-color">Important BG:</label>
+                        <input type="color" id="important-bg-color" class="color-picker" value="#ffffff">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="text-color">Text:</label>
+                        <input type="color" id="text-color" class="color-picker" value="#1f2937">
+                    </div>
+                    <div class="bg-picker-container">
+                        <label>Background:</label>
+                        <div class="bg-selector">
+                            <div class="bg-option bg-default active" data-bg="default" title="Default"></div>
+                            <div class="bg-option bg-gradient-1-thumb" data-bg="bg-gradient-1" title="Purple Dream"></div>
+                            <div class="bg-option bg-gradient-2-thumb" data-bg="bg-gradient-2" title="Pink Sunset"></div>
+                            <div class="bg-option bg-gradient-3-thumb" data-bg="bg-gradient-3" title="Ocean Blue"></div>
+                            <div class="bg-option bg-gradient-4-thumb" data-bg="bg-gradient-4" title="Fresh Green"></div>
+                            <div class="bg-option bg-gradient-5-thumb" data-bg="bg-gradient-5" title="Warm Sunrise"></div>
+                            <div class="bg-option bg-gradient-6-thumb" data-bg="bg-gradient-6" title="Deep Space"></div>
+                            <div class="bg-option bg-pattern-1-thumb" data-bg="bg-pattern-1" title="Diagonal Lines"></div>
+                            <div class="bg-option bg-pattern-2-thumb" data-bg="bg-pattern-2" title="Dots Pattern"></div>
+                            <div class="bg-option bg-solid-dark-thumb" data-bg="bg-solid-dark" title="Dark Mode"></div>
+                            <div class="bg-option bg-solid-light-thumb" data-bg="bg-solid-light" title="Light Mode"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="task-list-container">
-                <div class="task-list-header">
-                    <h2>Tasks</h2>
-                    <button class="add-task-btn" id="add-task-btn">
-                        <i class="fas fa-plus"></i> Add Task
-                    </button>
-                </div>
-                <div class="task-date" id="selected-date-display">Select a date to view tasks</div>
-                <div class="task-list" id="task-list">
-                    <div class="empty-state">
-                        <i class="fas fa-calendar-check"></i>
-                        <p>No tasks for this date</p>
+            <div class="content-area">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <h2 id="current-month">June 2023</h2>
+                        <div class="calendar-nav">
+                            <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                            <div class="month-year-selector">
+                                <select id="month-selector" class="month-selector">
+                                    <option value="0">January</option>
+                                    <option value="1">February</option>
+                                    <option value="2">March</option>
+                                    <option value="3">April</option>
+                                    <option value="4">May</option>
+                                    <option value="5">June</option>
+                                    <option value="6">July</option>
+                                    <option value="7">August</option>
+                                    <option value="8">September</option>
+                                    <option value="9">October</option>
+                                    <option value="10">November</option>
+                                    <option value="11">December</option>
+                                </select>
+                                <input type="number" id="year-selector" class="year-selector" min="2020" max="2030" style="width: 70px;">
+                            </div>
+                            <button id="today-btn">Today</button>
+                            <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendar">
+                        <!-- Calendar will be generated here -->
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <div class="important-events-container">
-            <div class="important-events-header">
-                <i class="fas fa-star"></i>
-                <h2>Deadlines</h2>
-            </div>
-            <div class="important-events-list" id="important-events-list">
-                <div class="empty-state">
-                    <p>No important events for the selected date</p>
+                
+                <div class="right-panel">
+                    <div class="task-list-container">
+                        <div class="task-list-header">
+                            <h2>Tasks List</h2>
+                            <button class="add-task-btn" id="add-task-btn">
+                                <i class="fas fa-plus"></i> Add Task
+                            </button>
+                        </div>
+                        <div class="task-date" id="selected-date-display">Select a date to view tasks</div>
+                        <div class="task-list" id="task-list">
+                            <div class="empty-state">
+                                <i class="fas fa-calendar-check"></i>
+                                <p>No tasks for this date</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="important-events-container">
+                        <div class="important-events-header">
+                            <i class="fas fa-star"></i>
+                            <h2>Important</h2>
+                        </div>
+                        <div class="important-events-list" id="important-events-list">
+                            <div class="empty-state">
+                                <p>No important events for the selected date</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -935,6 +1129,7 @@
             const taskList = document.getElementById('task-list');
             const selectedDateDisplay = document.getElementById('selected-date-display');
             const importantEventsList = document.getElementById('important-events-list');
+            const upcomingEvents = document.getElementById('upcoming-events');
             const addTaskBtn = document.getElementById('add-task-btn');
             const taskModal = document.getElementById('task-modal');
             const closeTaskModal = document.getElementById('close-task-modal');
@@ -943,10 +1138,13 @@
             const taskTextInput = document.getElementById('task-text');
             const taskImportantCheckbox = document.getElementById('task-important');
             const themeColorPicker = document.getElementById('theme-color');
-            const calendarColorPicker = document.getElementById('calendar-color');
-            const taskListColorPicker = document.getElementById('task-list-color');
-            const importantColorPicker = document.getElementById('important-color');
+            const calendarBgColorPicker = document.getElementById('calendar-bg-color');
+            const taskListBgColorPicker = document.getElementById('task-list-bg-color');
+            const importantBgColorPicker = document.getElementById('important-bg-color');
+            const textColorPicker = document.getElementById('text-color');
             const bgOptions = document.querySelectorAll('.bg-option');
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
 
             let currentDate = new Date();
             let selectedDate = null;
@@ -981,30 +1179,37 @@
 
             // Load section colors from localStorage
             function loadSectionColors() {
-                const savedCalendarColor = localStorage.getItem('calendarColor');
-                if (savedCalendarColor) {
-                    applyCalendarColor(savedCalendarColor);
-                    calendarColorPicker.value = savedCalendarColor;
+                const savedCalendarBg = localStorage.getItem('calendarBgColor');
+                if (savedCalendarBg) {
+                    applyCalendarBgColor(savedCalendarBg);
+                    calendarBgColorPicker.value = savedCalendarBg;
                 }
 
-                const savedTaskListColor = localStorage.getItem('taskListColor');
-                if (savedTaskListColor) {
-                    applyTaskListColor(savedTaskListColor);
-                    taskListColorPicker.value = savedTaskListColor;
+                const savedTaskListBg = localStorage.getItem('taskListBgColor');
+                if (savedTaskListBg) {
+                    applyTaskListBgColor(savedTaskListBg);
+                    taskListBgColorPicker.value = savedTaskListBg;
                 }
 
-                const savedImportantColor = localStorage.getItem('importantColor');
-                if (savedImportantColor) {
-                    applyImportantColor(savedImportantColor);
-                    importantColorPicker.value = savedImportantColor;
+                const savedImportantBg = localStorage.getItem('importantBgColor');
+                if (savedImportantBg) {
+                    applyImportantBgColor(savedImportantBg);
+                    importantBgColorPicker.value = savedImportantBg;
+                }
+
+                const savedTextColor = localStorage.getItem('textColor');
+                if (savedTextColor) {
+                    applyTextColor(savedTextColor);
+                    textColorPicker.value = savedTextColor;
                 }
             }
 
             // Save section colors to localStorage
             function saveSectionColors() {
-                localStorage.setItem('calendarColor', calendarColorPicker.value);
-                localStorage.setItem('taskListColor', taskListColorPicker.value);
-                localStorage.setItem('importantColor', importantColorPicker.value);
+                localStorage.setItem('calendarBgColor', calendarBgColorPicker.value);
+                localStorage.setItem('taskListBgColor', taskListBgColorPicker.value);
+                localStorage.setItem('importantBgColor', importantBgColorPicker.value);
+                localStorage.setItem('textColor', textColorPicker.value);
             }
 
             // Load background from localStorage
@@ -1033,22 +1238,30 @@
                 root.style.setProperty('--primary-dark', darkerColor);
             }
 
-            // Apply calendar color
-            function applyCalendarColor(color) {
+            // Apply calendar background color
+            function applyCalendarBgColor(color) {
                 const root = document.documentElement;
                 root.style.setProperty('--calendar-bg', color);
             }
 
-            // Apply task list color
-            function applyTaskListColor(color) {
+            // Apply task list background color
+            function applyTaskListBgColor(color) {
                 const root = document.documentElement;
                 root.style.setProperty('--task-list-bg', color);
             }
 
-            // Apply important color
-            function applyImportantColor(color) {
+            // Apply important background color
+            function applyImportantBgColor(color) {
                 const root = document.documentElement;
                 root.style.setProperty('--important-bg', color);
+            }
+
+            // Apply text color
+            function applyTextColor(color) {
+                const root = document.documentElement;
+                root.style.setProperty('--calendar-text', color);
+                root.style.setProperty('--task-text', color);
+                root.style.setProperty('--important-text', color);
             }
 
             // Adjust color brightness
@@ -1065,7 +1278,7 @@
                 // Remove all background classes
                 document.body.className = '';
                 
-                // Add the new background class if not default
+                // Add new background class if not default
                 if (bgClass !== 'default') {
                     document.body.classList.add(bgClass);
                 }
@@ -1089,6 +1302,12 @@
 
             // Format date for display
             function formatDateDisplay(date) {
+                const options = { month: 'short', day: 'numeric' };
+                return date.toLocaleDateString(undefined, options);
+            }
+
+            // Format date for full display
+            function formatDateFull(date) {
                 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                 return date.toLocaleDateString(undefined, options);
             }
@@ -1179,7 +1398,7 @@
                 renderImportantEvents();
                 
                 // Update selected date display
-                selectedDateDisplay.textContent = formatDateDisplay(date);
+                selectedDateDisplay.textContent = formatDateFull(date);
             }
 
             // Render tasks for selected date
@@ -1284,10 +1503,84 @@
                     const iconElement = document.createElement('i');
                     iconElement.className = `fas ${icon}`;
                     
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'event-delete';
+                    deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    deleteBtn.addEventListener('click', () => deleteTask(task.id));
+                    
                     eventItem.appendChild(checkbox);
                     eventItem.appendChild(iconElement);
                     eventItem.appendChild(eventText);
+                    eventItem.appendChild(deleteBtn);
                     importantEventsList.appendChild(eventItem);
+                });
+            }
+
+            // Render upcoming events in sidebar
+            function renderUpcomingEvents() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // Get all future important events
+                const futureEvents = tasks
+                    .filter(task => {
+                        const taskDate = new Date(task.date);
+                        return task.important && taskDate >= today && !task.completed;
+                    })
+                    .sort((a, b) => new Date(a.date) - new Date(b.date))
+                    .slice(0, 10); // Limit to 10 events
+                
+                if (futureEvents.length === 0) {
+                    upcomingEvents.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-alt"></i>
+                            <p>No upcoming events</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                upcomingEvents.innerHTML = '';
+                futureEvents.forEach(task => {
+                    const eventBadge = document.createElement('div');
+                    eventBadge.className = 'event-badge';
+                    
+                    const taskDate = new Date(task.date);
+                    const eventDate = document.createElement('div');
+                    eventDate.className = 'event-date';
+                    eventDate.textContent = formatDateDisplay(taskDate);
+                    
+                    const eventTitle = document.createElement('div');
+                    eventTitle.className = 'event-title';
+                    eventTitle.textContent = task.text;
+                    
+                    const eventType = document.createElement('div');
+                    eventType.className = 'event-type';
+                    
+                    let icon = 'fa-calendar';
+                    if (task.text.toLowerCase().includes('meeting')) {
+                        eventType.textContent = 'Meeting';
+                    } else if (task.text.toLowerCase().includes('exam')) {
+                        eventType.textContent = 'Exam';
+                    } else if (task.text.toLowerCase().includes('event')) {
+                        eventType.textContent = 'Event';
+                    } else {
+                        eventType.textContent = 'Important';
+                    }
+                    
+                    eventBadge.appendChild(eventDate);
+                    eventBadge.appendChild(eventTitle);
+                    eventBadge.appendChild(eventType);
+                    
+                    eventBadge.addEventListener('click', () => {
+                        selectDate(taskDate);
+                        // Close sidebar on mobile after selection
+                        if (window.innerWidth <= 768) {
+                            sidebar.classList.remove('active');
+                        }
+                    });
+                    
+                    upcomingEvents.appendChild(eventBadge);
                 });
             }
 
@@ -1299,6 +1592,7 @@
                     saveTasks();
                     renderTasks();
                     renderImportantEvents();
+                    renderUpcomingEvents();
                 }
             }
 
@@ -1309,6 +1603,7 @@
                 renderTasks();
                 renderImportantEvents();
                 renderCalendar();
+                renderUpcomingEvents();
             }
 
             // Show task modal
@@ -1375,6 +1670,7 @@
                 renderTasks();
                 renderImportantEvents();
                 renderCalendar();
+                renderUpcomingEvents();
                 
                 hideTaskModal();
             });
@@ -1387,18 +1683,23 @@
             });
 
             // Section color pickers
-            calendarColorPicker.addEventListener('change', (e) => {
-                applyCalendarColor(e.target.value);
+            calendarBgColorPicker.addEventListener('change', (e) => {
+                applyCalendarBgColor(e.target.value);
                 saveSectionColors();
             });
 
-            taskListColorPicker.addEventListener('change', (e) => {
-                applyTaskListColor(e.target.value);
+            taskListBgColorPicker.addEventListener('change', (e) => {
+                applyTaskListBgColor(e.target.value);
                 saveSectionColors();
             });
 
-            importantColorPicker.addEventListener('change', (e) => {
-                applyImportantColor(e.target.value);
+            importantBgColorPicker.addEventListener('change', (e) => {
+                applyImportantBgColor(e.target.value);
+                saveSectionColors();
+            });
+
+            textColorPicker.addEventListener('change', (e) => {
+                applyTextColor(e.target.value);
                 saveSectionColors();
             });
 
@@ -1411,6 +1712,11 @@
                 });
             });
 
+            // Menu toggle for mobile
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+
             // Close modal when clicking outside
             window.addEventListener('click', (e) => {
                 if (e.target === taskModal) {
@@ -1418,12 +1724,23 @@
                 }
             });
 
-            // Initialize the app
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(e.target) && 
+                    !menuToggle.contains(e.target) && 
+                    sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                }
+            });
+
+            // Initialize app
             loadTasks();
             loadThemeColor();
             loadSectionColors();
             loadBackground();
             renderCalendar();
+            renderUpcomingEvents();
             
             // Select today by default
             selectDate(new Date());
